@@ -6189,7 +6189,7 @@ void Game::playerToggleMount(uint32_t playerId, bool mount) {
 	player->setNextExAction(OTSYS_TIME() + g_configManager().getNumber(UI_ACTIONS_DELAY_INTERVAL) - 10);
 }
 
-void Game::playerChangeOutfit(uint32_t playerId, Outfit_t outfit, uint8_t isMountRandomized /* = 0*/) {
+void Game::playerChangeOutfit(uint32_t playerId, Outfit_t outfit, bool isMounted, uint8_t isMountRandomized /* = 0*/) {
 	if (!g_configManager().getBoolean(ALLOW_CHANGEOUTFIT)) {
 		return;
 	}
@@ -6202,8 +6202,8 @@ void Game::playerChangeOutfit(uint32_t playerId, Outfit_t outfit, uint8_t isMoun
 	if (!player->changeOutfit(outfit, true)) {
 		return;
 	}
-
-	if (player->isWearingSupportOutfit()) {
+	
+	if (player->isWearingSupportOutfit() || !isMounted) {
 		outfit.lookMount = 0;
 		isMountRandomized = 0;
 	}
@@ -6245,6 +6245,15 @@ void Game::playerChangeOutfit(uint32_t playerId, Outfit_t outfit, uint8_t isMoun
 			if (prevMount) {
 				deltaSpeedChange -= prevMount->speed;
 			}
+		}
+
+		// place code here
+
+		if (player->changeMount(mount->id, true)) {
+			g_logger().error("Attributes found for mount: {}", mount->id);
+			// mountAttributes = g_game().mounts->addAttributes(getID(), currentMount->id);
+		} else {
+			g_logger().error("Attributes not found for mount: {}", mount->id);
 		}
 
 		player->setCurrentMount(mount->id);
