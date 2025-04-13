@@ -241,6 +241,8 @@ public:
 
 	bool removeMoney(const std::shared_ptr<Cylinder> &cylinder, uint64_t money, uint32_t flags = 0, bool useBank = false);
 
+	bool validRemoveMoney(const std::shared_ptr<Cylinder> &cylinder, uint64_t money, uint32_t flags = 0, bool useBank = false);
+
 	void addMoney(const std::shared_ptr<Cylinder> &cylinder, uint64_t money, uint32_t flags = 0);
 
 	std::shared_ptr<Item> transformItem(std::shared_ptr<Item> item, uint16_t newId, int32_t newCount = -1);
