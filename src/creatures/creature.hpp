@@ -318,6 +318,9 @@ public:
 		auto outfit = currentOutfit.lookType;
 		return outfit == 75 || outfit == 266 || outfit == 302;
 	}
+	bool isSupportOutfit(int8_t lookType) const {
+		return lookType == 75 || lookType == 266 || lookType == 302;
+	}
 	bool isInvisible() const;
 	ZoneType_t getZoneType();
 

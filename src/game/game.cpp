@@ -6203,7 +6203,7 @@ void Game::playerChangeOutfit(uint32_t playerId, Outfit_t outfit, bool isMounted
 		return;
 	}
 	
-	if (player->isWearingSupportOutfit() || !isMounted) {
+	if ((player->isWearingSupportOutfit() && player->isSupportOutfit(outfit.lookType)) || !isMounted) {
 		outfit.lookMount = 0;
 		isMountRandomized = 0;
 	}
@@ -6249,12 +6249,7 @@ void Game::playerChangeOutfit(uint32_t playerId, Outfit_t outfit, bool isMounted
 
 		// place code here
 
-		if (player->changeMount(mount->id, true)) {
-			g_logger().error("Attributes found for mount: {}", mount->id);
-			// mountAttributes = g_game().mounts->addAttributes(getID(), currentMount->id);
-		} else {
-			g_logger().error("Attributes not found for mount: {}", mount->id);
-		}
+		player->changeMount(mount->id, true);
 
 		player->setCurrentMount(mount->id);
 		changeSpeed(player, deltaSpeedChange);

@@ -6286,6 +6286,11 @@ void Player::changeSoul(int32_t soulChange) {
 }
 
 bool Player::changeOutfit(Outfit_t outfit, bool checkList) {
+	bool cumulativeOutfitBonus = g_configManager().getBoolean(TOGGLE_CUMULATIVE_BONUS_OUTFIT);
+	if (cumulativeOutfitBonus) {
+		return false;
+	}
+
 	auto outfitId = Outfits::getInstance().getOutfitId(getSex(), outfit.lookType);
 	if (checkList && (!canWearOutfit(outfitId, outfit.lookAddons) || !requestedOutfit)) {
 		return false;
@@ -6303,6 +6308,13 @@ bool Player::changeOutfit(Outfit_t outfit, bool checkList) {
 }
 
 bool Player::changeMount(uint8_t mountId, bool checkList) {
+
+	bool cumulativeMountBonus = g_configManager().getBoolean(TOGGLE_CUMULATIVE_BONUS_MOUNT);
+
+	if (cumulativeMountBonus) {
+		return false;
+	}
+	
 	const auto &mount = g_game().mounts->getMountByID(mountId);
 	if (!mount) {
 		return false;
@@ -6324,7 +6336,9 @@ bool Player::changeMount(uint8_t mountId, bool checkList) {
 
 	if (mount) {		
 		mountAttributes = g_game().mounts->addAttributes(getID(), mountId);
-	} 
+	}
+
+	return true;
 
 }
 
@@ -7495,9 +7509,8 @@ bool Player::toggleMount(bool mount) {
 		}
 
 		const auto &mountAttr = g_game().mounts->getMountByID(currentMount->id);
-		if (!changeMount(currentMount->id, true)) {
-			g_logger().error("Could not change mount: {}", currentMount->id);
-		} 
+
+		changeMount(currentMount->id, true);
 
 		defaultOutfit.lookMount = currentMount->clientId;
 		setCurrentMount(currentMount->id);
@@ -7588,17 +7601,17 @@ bool Player::hasMount(const std::shared_ptr<Mount> &mount) const {
 
 void Player::dismount() {
 	const auto &mount = g_game().mounts->getMountByID(getCurrentMount());
+
 	if (mount && mount->speed > 0) {
 		g_game().changeSpeed(static_self_cast<Player>(), -mount->speed);
 	}
 
-	g_logger().warn("[Mounts::dismount] Mount with ID {} not found.", getLastMount());
-
-	if (mountAttributes) {
-			// const auto &lastMount = g_game().mounts->getMountByID(getLastMount());
-			//const auto currentMount = g_game().mounts->getMountByID(getLastMount());
-		mountAttributes = !Mounts::getInstance().removeAttributes(getID(), mount->id);
-   }
+	if (mount) {
+		bool cumulativeMountBonus = g_configManager().getBoolean(TOGGLE_CUMULATIVE_BONUS_MOUNT);
+		if (mountAttributes && !cumulativeMountBonus) {
+			mountAttributes = !Mounts::getInstance().removeAttributes(getID(), mount->id);
+		}
+	}
 
 	defaultOutfit.lookMount = 0;
 }
